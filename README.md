@@ -1,194 +1,41 @@
-﻿# creating-my-own-git
-# PyGit - A Mini Git Version Control System
+# creating-my-own-git
 
-## Overview
+A from-scratch implementation of Git's core plumbing in Python — built to understand 
+how Git actually works under the hood, without using GitPython, libgit2, or any 
+Git-wrapping library.
 
-PyGit is a simplified implementation of Git written in Python. It demonstrates the core concepts of a distributed version control system, including object storage, commits, branching, checkout, and repository status.
+## What it does
 
-The project stores data in a custom `.pygit` directory similar to Git's `.git` directory and uses SHA-1 hashing and zlib compression for object storage.
+Git is fundamentally a content-addressable filesystem with a version control layer 
+on top. This project reimplements that foundation: objects are hashed with SHA-1, 
+compressed with zlib, and stored in a `.pygit/objects` directory exactly like real Git.
 
----
+## Implemented commands
 
-## Features
+- `init` — initializes a new repository (.pygit directory structure)
+- `hash-object` — computes SHA-1 hash and stores a file as a blob object
+- `cat-file` — reads and prints the contents of a stored object
+- `add` — stages files by writing blob objects and updating the index
+- `commit` — creates a commit object linking a tree snapshot, parent commit, and message
 
-* Initialize a new repository
-* Add files and directories to the staging area
-* Store Blob, Tree, and Commit objects
-* Create commits with author information and commit messages
-* View commit history
-* Create, list, and delete branches
-* Checkout branches or previous commits (Detached HEAD supported)
-* Display repository status
-* SHA-1 object hashing
-* zlib object compression
-* Hierarchical tree construction
-
----
-
-## Project Structure
-
-```text
-.pygit/
-│
-├── objects/        # Blob, Tree and Commit objects
-├── refs/
-│   └── heads/      # Branch references
-├── HEAD            # Current branch or detached HEAD
-└── index           # Staging area
-```
-
----
-
-## Git Objects
-
-### Blob
-
-Stores the contents of a file.
-
-### Tree
-
-Represents the directory structure by storing references to blobs and other trees.
-
-### Commit
-
-Stores:
-
-* Tree hash
-* Parent commit(s)
-* Author
-* Committer
-* Timestamp
-* Commit message
-
----
-
-## Commands
-
-### Initialize Repository
+## Usage
 
 ```bash
-python pygit.py init
+python main.py init
+python main.py hash-object <file>
+python main.py cat-file <hash>
+python main.py add <file>
+python main.py commit -m "message"
 ```
 
-### Add Files
+## What I learned
 
-```bash
-python pygit.py add file.txt
-```
+Building this required understanding Git's object model (blobs, trees, commits), 
+content-addressable storage via SHA-1 hashing, and how refs/HEAD tie together to 
+form the commit graph — concepts that are usually hidden behind Git's CLI.
 
-Add multiple files:
+## Roadmap
 
-```bash
-python pygit.py add file1.txt file2.txt
-```
-
-Add an entire directory:
-
-```bash
-python pygit.py add src/
-```
-
-### Commit Changes
-
-```bash
-python pygit.py commit -m "Initial Commit" -a "Your Name"
-```
-
-### View Commit History
-
-```bash
-python pygit.py log
-```
-
-### Check Repository Status
-
-```bash
-python pygit.py status
-```
-
-### Branch Operations
-
-Create a branch:
-
-```bash
-python pygit.py branch feature
-```
-
-List branches:
-
-```bash
-python pygit.py branch
-```
-
-Delete a branch:
-
-```bash
-python pygit.py branch -d feature
-```
-
-### Checkout
-
-Switch to another branch:
-
-```bash
-python pygit.py checkout feature
-```
-
-Checkout a commit:
-
-```bash
-python pygit.py checkout <commit_hash>
-```
-
----
-
-## Internal Working
-
-1. Files are converted into Blob objects.
-2. Blob objects are hashed using SHA-1.
-3. Objects are compressed using zlib.
-4. Objects are stored inside `.pygit/objects/`.
-5. Tree objects represent directories.
-6. Commit objects reference tree objects and parent commits.
-7. Branches store commit hashes inside `.pygit/refs/heads/`.
-8. `HEAD` keeps track of the current branch or detached commit.
-
----
-
-## Technologies Used
-
-* Python 3
-* pathlib
-* hashlib (SHA-1)
-* zlib
-* argparse
-* json
-
----
-
-## Limitations
-
-This project implements the core local version control functionality of Git but does not include:
-
-* Remote repositories
-* Push/Pull/Fetch
-* Merge
-* Rebase
-* Tags
-* Stash
-* Conflict resolution
-
----
-
-## Learning Outcomes
-
-This project helped in understanding:
-
-* Git internals
-* Version control systems
-* SHA-1 hashing
-* Object serialization
-* Data compression
-* Tree structures
-* Branch management
-* Command-line application development
+- [ ] `log` — walk commit history via parent pointers
+- [ ] `diff` — compare tree/blob contents
+- [ ] `branch` / `checkout` — ref manipulation
